@@ -1,0 +1,11 @@
+LICENSE
+MANIFEST
+META.yml
+Makefile.PL
+README
+dist.ini
+eg/burn.pl
+eg/mary.pl
+eg/obj.pl
+eg/wobbleBass.pl
+lib/Audio/NoiseGen.pm
