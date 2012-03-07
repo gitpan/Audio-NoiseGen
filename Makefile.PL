@@ -9,7 +9,7 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Helps you generate (structured) noise",
+  "ABSTRACT" => "Unit Generator Based Sound Synthesizer",
   "AUTHOR" => "Brock Wilcox <awwaiid\@thelackthereof.org>",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
@@ -26,9 +26,10 @@ my %WriteMakefileArgs = (
     "List::Util" => 0,
     "overload" => 0,
     "parent" => 0,
+    "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.01",
+  "VERSION" => "0.02",
   "test" => {
     "TESTS" => ""
   }

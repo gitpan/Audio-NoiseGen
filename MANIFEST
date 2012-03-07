@@ -5,7 +5,12 @@ Makefile.PL
 README
 dist.ini
 eg/burn.pl
+eg/lala.pl
+eg/looper.pl
 eg/mary.pl
+eg/midi.pl
+eg/mouse-pitch.pl
 eg/obj.pl
+eg/out.raw
 eg/wobbleBass.pl
 lib/Audio/NoiseGen.pm
