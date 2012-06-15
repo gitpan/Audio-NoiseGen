@@ -8,6 +8,8 @@ use Audio::PortAudio;
 use List::Util qw( sum );
 use List::MoreUtils qw( none );
 
+our $VERSION = '0.03';
+
 =head1 NAME
 
 Audio::NoiseGen - Unit Generator Based Sound Synthesizer
@@ -145,6 +147,7 @@ our @EXPORT_OK = qw(
   oneshot
   lowpass
   highpass
+  generalize
 );
 
 our %EXPORT_TAGS = (
@@ -162,15 +165,15 @@ This sets up our L<Audio::PortAudio> interface. All parameters are optional, and
 sub init {
   my $api = shift || Audio::PortAudio::default_host_api();
   my $device = shift || $api->default_output_device;
-  # $sample_rate = shift || 48000;
-  $sample_rate = shift || 20000;
+  $sample_rate = shift || 48000;
+  # $sample_rate = shift || 20000;
   $time_step = (1/$sample_rate); # 2 * (1/48000) = 0.0000416666
   $stream = $device->open_write_stream(
     {
       channel_count => 1,
     },
     $sample_rate,
-    1000, # some sort of buffer size?
+    8000, # some sort of buffer size?
     # 0
   );
 }
@@ -387,18 +390,24 @@ sub square {
   my %params = generalize( freq => 440, @_ );
   my $current_sample = 0;
   my $current_freq = 0;
+  my $sample_count = 1;
   return sub {
     my $freq = $params{freq}->();
     return 0 if ! defined $freq;
-    my $sample_count = (1 / $freq) * $sample_rate;
+
+    # Only calculate sample count if freq changes
+    if($current_freq != $freq) {
+      $sample_count = $sample_rate / $freq / 2;
+      $current_freq = $freq;
+    }
     $current_sample++;
     if($current_sample > $sample_count) {
-      $current_sample = 1;
+      $current_sample = - $sample_count;
     }
-    if($current_sample < $sample_count / 2) {
+    if($current_sample < 0) {
       return 1;
     }
-    if($current_sample >= $sample_count / 2) {
+    if($current_sample >= $sample_count) {
       return -1;
     }
   };
@@ -662,16 +671,15 @@ sub formula {
 sub lowpass {
   my %params = generalize( @_ );
   my $current_time = 0;
-  my $last_sample = 0;
   my $last_out_sample = 0;
   sub {
     my $gen_sample = $params{gen}->();
     return undef if ! defined $gen_sample;
-    $current_time += $time_step;
-    my $alpha = $current_time / ($params{rc}->() + $current_time);
+    # $current_time += $time_step;
+    # my $alpha = $current_time / ($params{rc}->() + $current_time);
+    my $alpha = $time_step / ($params{rc}->() + $time_step);
     my $sample = $last_out_sample + $alpha * ($gen_sample - $last_out_sample);
     $last_out_sample = $sample;
-    $last_sample = $gen_sample;
     return $sample;
   }
 }
